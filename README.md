@@ -1,2 +1,6 @@
-# chat_socket
-A simple chat socket
+# Chat Socket
+this is a chat example using Golang with socket.io
+
+# How to run
+
+# Consequent
