@@ -1,0 +1,18 @@
+default: &default
+  debug: true
+
+  # Inner Http status address
+  addr: ":8080"
+  health_uri: "/health"
+
+# production specific
+production:
+  <<: *default
+
+  # staging specific
+staging:
+  <<: *default
+
+# development specific
+development:
+  <<: *default
