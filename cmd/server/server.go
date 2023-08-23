@@ -1,11 +1,37 @@
-package tcp
+package main
 
 import (
 	"fmt"
+	"github.com/charlie-bit/utils/safe_goroutine"
+	"net"
 	"strconv"
 )
 
-func Broadcast() {
+func main() {
+	// 建立监听
+	listen, err := net.Listen("tcp", ":2023")
+	if err != nil {
+		panic(err)
+	}
+	defer listen.Close()
+
+	// 监听客户端链接
+	safe_goroutine.SafeGo(func() {
+		broadcast()
+	})
+
+	// 监听客户端消息
+	for {
+		conn, err := listen.Accept()
+		if err != nil {
+			panic(err)
+		}
+
+		HandleConn(conn)
+	}
+}
+
+func broadcast() {
 	users := make(map[*User]struct{})
 
 	for {
