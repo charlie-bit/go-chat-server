@@ -1,0 +1,85 @@
+###################### Zookeeper ######################
+# Zookeeper configuration
+# It's not recommended to modify the schema
+#
+# Zookeeper address
+# Zookeeper username
+# Zookeeper password
+zookeeper:
+  schema: openim
+  address: [ 127.0.0.1:2181 ]
+  username:
+  password:
+
+###################### Mysql ######################
+# MySQL configuration
+# Currently, only single machine setup is supported
+#
+# Maximum number of open connections
+# Maximum number of idle connections
+# Maximum lifetime in seconds a connection can be reused
+# Log level: 1=slient, 2=error, 3=warn, 4=info
+# Slow query threshold in milliseconds
+mysql:
+  address: [ 127.0.0.1:13306 ]
+  username: root
+  password: openIM123
+  database: openIM_v3
+  maxOpenConn: 1000
+  maxIdleConn: 100
+  maxLifeTime: 60
+  logLevel: 4
+  slowThreshold: 500
+
+###################### Mongo ######################
+# MongoDB configuration
+# If uri is not empty, it will be used directly
+#
+# MongoDB address for standalone setup, Mongos address for sharded cluster setup
+# Default MongoDB database name
+# Maximum connection pool size
+mongo:
+  uri:
+  address: [ 127.0.0.1:37017 ]
+  database: openIM_v3
+  username: root
+  password: openIM123
+  maxPoolSize: 100
+
+###################### Redis ######################
+# Redis configuration
+#
+# Username is required only for Redis version 6.0+
+redis:
+  address: [ 127.0.0.1:16379 ]
+  username:
+  password: openIM123
+
+###################### Kafka ######################
+# Kafka configuration
+#
+# Kafka username
+# Kafka password
+# It's not recommended to modify this topic name
+# Consumer group ID, it's not recommended to modify
+kafka:
+  username:
+  password:
+  addr: [ 127.0.0.1:9092 ]
+  latestMsgToRedis:
+    topic: "latestMsgToRedis"
+  offlineMsgToMongo:
+    topic: "offlineMsgToMongoMysql"
+  msgToPush:
+    topic: "msgToPush"
+  consumerGroupID:
+    msgToRedis: redis
+    msgToMongo: mongo
+    msgToMySql: mysql
+    msgToPush: push
+
+# API Server Port
+APIServerGrpcPort: 10001
+APIServerWsPort: 10010
+
+
