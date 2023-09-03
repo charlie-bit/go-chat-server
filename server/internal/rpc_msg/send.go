@@ -1,4 +1,4 @@
-package msg
+package rpc_msg
 
 import (
 	"chat_socket/server/pkg/proto/msg"
@@ -16,11 +16,11 @@ func (m MsgRPCServer) SendMsg(ctx context.Context, req *msg.SendMsgReq) (*msg.Se
 	if req.Content == "" {
 		return nil, fmt.Errorf("req message is nil")
 	}
-	// integrate msg basic info
+	// integrate rpc_msg basic info
 	resp.ClientMsgID = getMsgID(req.RecvID)
 	resp.ServerMsgID = getMsgID(req.SendID)
 	resp.SendTime = time.Now().UnixNano() / 1e6
-	// push msg to mq
+	// push rpc_msg to mq
 	if _, _, err := m.producer.SendMsg(ctx, req.RecvID, req.Content); err != nil {
 		return nil, err
 	}

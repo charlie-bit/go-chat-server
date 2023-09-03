@@ -11,7 +11,7 @@ import (
 	"google.golang.org/protobuf/proto"
 )
 
-// use msg rpc client to send msg
+// use rpc_msg rpc client to send rpc_msg
 func sendMsg(req gateway.Req) ([]byte, error) {
 	msgClient, err := grpc.Dial(
 		":"+basic_convert.NewBasicTypeConversion.Itoa(config.Cfg.MsgServerGrpcPort),

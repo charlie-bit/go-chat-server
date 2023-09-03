@@ -8,13 +8,14 @@ service msg {
 }
 
 message SendMsgReq{
-  string content = 1;
-  string sendID = 2;
-  string recvID = 3;
+  string content = 1; // 消息内容
+  string sendID = 2; // 发送人
+  string recvID = 3; // 接受人
+  int32 sessionType = 4; // 会话类型
 }
 
 message SendMsgResp{
-  string serverMsgID = 1;
-  string clientMsgID = 2;
-  int64  sendTime = 3;
+  string serverMsgID = 1; // 服务端消息id
+  string clientMsgID = 2; // 客户端消息id
+  int64  sendTime = 3; // 消息时间
 }

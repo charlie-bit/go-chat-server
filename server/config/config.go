@@ -64,11 +64,12 @@ type configStruct struct {
 			MsgToPush  string `yaml:"msgToPush"`
 		} `yaml:"consumerGroupID"`
 	} `yaml:"kafka"`
-	APIServerGrpcPort int `yaml:"APIServerGrpcPort"`
-	APIServerWsPort   int `yaml:"APIServerWsPort"`
-	MsgServerGrpcPort int `yaml:"MsgServerGrpcPort"`
-	GatewayGrpcPort   int `yaml:"GatewayGrpcPort"`
-	GatewayWsPort     int `yaml:"GatewayWsPort"`
+	APIServerGrpcPort      int `yaml:"APIServerGrpcPort"`
+	APIServerWsPort        int `yaml:"APIServerWsPort"`
+	MsgServerGrpcPort      int `yaml:"MsgServerGrpcPort"`
+	GatewayGrpcPort        int `yaml:"GatewayGrpcPort"`
+	GatewayWsPort          int `yaml:"GatewayWsPort"`
+	TransferServerGrpcPort int `yaml:"TransferServerGrpcPort"`
 }
 
 func InitConfig(path string) error {

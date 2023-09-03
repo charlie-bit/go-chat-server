@@ -53,7 +53,7 @@ func main() {
 
 func run(port int) error {
 	if port == 0 {
-		port = config.Cfg.MsgServerGrpcPort
+		port = config.Cfg.TransferServerGrpcPort
 	}
 	return start_rpc.StartRPC(port, rpc_msg.StartMsgServer)
 }

@@ -1,4 +1,4 @@
-package msg
+package rpc_msg
 
 import (
 	"chat_socket/server/config"

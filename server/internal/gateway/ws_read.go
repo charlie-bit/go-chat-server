@@ -49,7 +49,6 @@ func wsHandler(w http.ResponseWriter, r *http.Request) {
 		case websocket.BinaryMessage:
 			_ = handleMsg(conn, message)
 		case websocket.PingMessage:
-
 		case websocket.CloseMessage:
 			return
 		}
