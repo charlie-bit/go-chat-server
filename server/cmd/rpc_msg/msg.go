@@ -2,13 +2,11 @@ package main
 
 import (
 	"chat_socket/server/config"
-	"chat_socket/server/internal/gateway"
 	"chat_socket/server/internal/msg"
 	"chat_socket/server/pkg/start_rpc"
 	"flag"
 	"fmt"
 	"github.com/charlie-bit/utils/gzlog"
-	"github.com/charlie-bit/utils/safe_goroutine"
 	"os"
 	"os/signal"
 	"syscall"
@@ -57,10 +55,5 @@ func run(port int) error {
 	if port == 0 {
 		port = config.Cfg.MsgServerGrpcPort
 	}
-	safe_goroutine.SafeGo(
-		func() {
-			_ = gateway.WsRun(config.Cfg.GatewayWsPort)
-		},
-	)
 	return start_rpc.StartRPC(port, msg.StartMsgServer)
 }
