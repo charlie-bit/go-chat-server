@@ -23,9 +23,9 @@ func (h historyConsumer) Cleanup(session sarama.ConsumerGroupSession) error {
 }
 
 func (h historyConsumer) ConsumeClaim(session sarama.ConsumerGroupSession, claim sarama.ConsumerGroupClaim) error {
-	for msg := range claim.Messages() {
-		h.handleMsg(msg)
-		session.MarkMessage(msg, "consumed")
+	for mvale := range claim.Messages() {
+		h.handleMsg(mvale)
+		session.MarkMessage(mvale, "consumed")
 	}
 	return nil
 }
@@ -37,17 +37,16 @@ func (h historyConsumer) handleMsg(message *sarama.ConsumerMessage) {
 		return
 	}
 	// get conversation id by msg
-	// convID := GetConversationIdByMsg(&content)
+	convID := GetConversationIdByMsg(&content)
 
 	// set conversation max seq
 
 	// new conversation need create new record
 
-	//
-
 	// storage message
 
 	// transfer message to push server
+
 }
 
 func GetConversationIdByMsg(req *msg.SendMsgReq) string {
