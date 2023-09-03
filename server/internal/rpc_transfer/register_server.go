@@ -2,7 +2,10 @@ package rpc_transfer
 
 import (
 	"chat_socket/server/config"
+	relation "chat_socket/server/model/table"
 	"chat_socket/server/pkg/kafka"
+	"chat_socket/server/pkg/mysql"
+	"chat_socket/server/pkg/redis"
 	"google.golang.org/grpc"
 )
 
@@ -21,5 +24,16 @@ func StartTransferServer(s *grpc.Server) {
 			config.Cfg.Kafka.LatestMsgToRedis.Topic,
 		),
 	}
+	rdb, err := redis.NewRedis()
+	if err != nil {
+		return
+	}
+	srv.hConsumer.rdb = rdb
+	mdb, err := mysql.NewMysqlGormDB()
+	if err != nil {
+		return
+	}
+	_ = mdb.AutoMigrate(&relation.ConversationModel{})
+	srv.hConsumer.convMInter = relation.NewConversationGorm(mdb)
 	go srv.hConsumer.historyConsumerGroup.RegisterHandleAndConsumer(srv.hConsumer)
 }
