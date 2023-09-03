@@ -13,5 +13,5 @@ clean:
 	@rm -f bin/*
 
 build:
-	CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 $(GO) build -o bin/tcp_server cmd/tcp/server/server.go
-	CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 $(GO) build -o bin/tcp_client cmd/tcp/client/client.go
+	go test -v ./...
+	go build -v ./...

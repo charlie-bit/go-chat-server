@@ -23,8 +23,8 @@ zookeeper:
 mysql:
   address: [ 127.0.0.1:13306 ]
   username: root
-  password: openIM123
-  database: openIM_v3
+  password: 123456
+  database: chat_demo
   maxOpenConn: 1000
   maxIdleConn: 100
   maxLifeTime: 60
@@ -41,9 +41,9 @@ mysql:
 mongo:
   uri:
   address: [ 127.0.0.1:37017 ]
-  database: openIM_v3
+  database: chat_demo
   username: root
-  password: openIM123
+  password: 123456
   maxPoolSize: 100
 
 ###################### Redis ######################
@@ -53,7 +53,7 @@ mongo:
 redis:
   address: [ 127.0.0.1:16379 ]
   username:
-  password: openIM123
+  password:
 
 ###################### Kafka ######################
 # Kafka configuration
@@ -81,5 +81,8 @@ kafka:
 # API Server Port
 APIServerGrpcPort: 10001
 APIServerWsPort: 10010
+MsgServerGrpcPort: 10020
+GatewayGrpcPort: 10030
+GatewayWsPort: 10040
 
 

@@ -1,0 +1,20 @@
+syntax = "proto3";
+package msg;
+option go_package = "chat_socket/msg";
+
+service msg {
+  //发送消息
+  rpc SendMsg(SendMsgReq) returns(SendMsgResp);
+}
+
+message SendMsgReq{
+  string content = 1;
+  string sendID = 2;
+  string recvID = 3;
+}
+
+message SendMsgResp{
+  string serverMsgID = 1;
+  string clientMsgID = 2;
+  int64  sendTime = 3;
+}

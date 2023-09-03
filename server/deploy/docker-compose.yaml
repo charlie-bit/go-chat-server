@@ -1,0 +1,66 @@
+version: "3"
+services:
+  mysql:
+    image: mysql
+    ports:
+      - 13306:3306
+      - 23306:33060
+    container_name: mysql_chat_demo
+    environment:
+      MYSQL_ROOT_PASSWORD: 123456
+    restart: always
+
+  mongodb:
+    image: mongo:6.0.2
+    ports:
+      - 37017:27017
+    container_name: mongo_chat_demo
+    command: --wiredTigerCacheSizeGB 1 --auth
+    environment:
+      - TZ=Asia/Shanghai
+      - wiredTigerCacheSizeGB=1
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=123456
+      - MONGO_INITDB_DATABASE=chat_demo
+      - MONGO_USERNAME=root
+      - MONGO_PASSWORD=123456
+    restart: always
+
+  redis:
+    image: redis:7.0.0
+    ports:
+      - 16379:6379
+    container_name: redis_chat_demo
+    environment:
+      TZ: Asia/Shanghai
+    restart: always
+    sysctls:
+      net.core.somaxconn: 1024
+
+  zookeeper:
+    image: wurstmeister/zookeeper
+    ports:
+      - 2181:2181
+    container_name: zookeeper_chat_demo
+    environment:
+      TZ: Asia/Shanghai
+    restart: always
+
+
+  kafka:
+    image: wurstmeister/kafka
+    container_name: kafka_chat_demo
+    restart: always
+    ports:
+      - 9092:9092
+    environment:
+      TZ: Asia/Shanghai
+      KAFKA_BROKER_ID: 0
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_CREATE_TOPICS: "latestMsgToRedis:8:1,msgToPush:8:1,offlineMsgToMongoMysql:8:1"
+      KAFKA_ADVERTISED_LISTENERS: INSIDE://127.0.0.1:9092,OUTSIDE://127.0.0.1:9092
+      KAFKA_LISTENERS: INSIDE://:9092,OUTSIDE://:9093
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "INSIDE:PLAINTEXT,OUTSIDE:PLAINTEXT"
+      KAFKA_INTER_BROKER_LISTENER_NAME: INSIDE
+    depends_on:
+      - zookeeper

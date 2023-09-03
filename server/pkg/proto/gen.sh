@@ -1,0 +1,1 @@
+protoc --go_out=plugins=grpc:./msg --go_opt=module=chat_socket/msg msg/msg.proto

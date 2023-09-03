@@ -2,6 +2,7 @@ package main
 
 import (
 	"chat_socket/server/config"
+	"chat_socket/server/pkg/start_rpc"
 	"flag"
 	"fmt"
 	"github.com/charlie-bit/utils/gzlog"
@@ -16,13 +17,15 @@ func main() {
 		ping        bool
 		showVersion bool
 		grpcPort    int
+		wsPort      int
 	)
 
-	flag.StringVar(&configFile, "f", "config/setting.yml", "config file")
+	flag.StringVar(&configFile, "f", "server/config/setting.yaml", "config file")
 	flag.BoolVar(&ping, "ping", false, "Ping server.")
 	flag.BoolVar(&showVersion, "version", false, "Print version information.")
 	flag.BoolVar(&showVersion, "v", false, "Print version information.")
 	flag.IntVar(&grpcPort, "grpc_port", 0, "grpc port")
+	flag.IntVar(&wsPort, "ws_port", 0, "ws port")
 	flag.Parse()
 
 	// get config
@@ -51,7 +54,7 @@ func main() {
 
 func run(port int) error {
 	if port == 0 {
-		port = config.Cfg.APIServerGrpcPort
+		port = config.Cfg.MsgServerGrpcPort
 	}
-	return nil
+	return start_rpc.StartRPC(port, nil)
 }

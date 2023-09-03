@@ -66,6 +66,9 @@ type configStruct struct {
 	} `yaml:"kafka"`
 	APIServerGrpcPort int `yaml:"APIServerGrpcPort"`
 	APIServerWsPort   int `yaml:"APIServerWsPort"`
+	MsgServerGrpcPort int `yaml:"MsgServerGrpcPort"`
+	GatewayGrpcPort   int `yaml:"GatewayGrpcPort"`
+	GatewayWsPort     int `yaml:"GatewayWsPort"`
 }
 
 func InitConfig(path string) error {
