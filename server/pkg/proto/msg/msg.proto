@@ -1,6 +1,6 @@
 syntax = "proto3";
 package msg;
-option go_package = "chat_socket/msg";
+option go_package = "chat_socket/server/pkg/proto/msg";
 
 service msg {
   //发送消息

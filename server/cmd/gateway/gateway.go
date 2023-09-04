@@ -6,11 +6,12 @@ import (
 	"chat_socket/server/pkg/start_rpc"
 	"flag"
 	"fmt"
-	"github.com/charlie-bit/utils/gzlog"
-	"github.com/charlie-bit/utils/safe_goroutine"
 	"os"
 	"os/signal"
 	"syscall"
+
+	"github.com/charlie-bit/utils/gzlog"
+	"github.com/charlie-bit/utils/safe_goroutine"
 )
 
 func main() {
@@ -58,10 +59,11 @@ func run(port int) error {
 	if port == 0 {
 		port = config.Cfg.GatewayGrpcPort
 	}
+	gateway.NewUserMap()
 	safe_goroutine.SafeGo(
 		func() {
 			_ = gateway.WsRun(config.Cfg.GatewayWsPort)
 		},
 	)
-	return start_rpc.StartRPC(port, nil)
+	return start_rpc.StartRPC(port, gateway.StartGatewayRPCServer)
 }

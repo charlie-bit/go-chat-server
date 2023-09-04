@@ -2,15 +2,17 @@ package gateway
 
 import (
 	"fmt"
-	"github.com/charlie-bit/utils/basic_convert"
-	"github.com/charlie-bit/utils/gzlog"
-	"github.com/gorilla/websocket"
 	"net/http"
 	"runtime/debug"
 	"time"
+
+	"github.com/charlie-bit/utils/basic_convert"
+	"github.com/charlie-bit/utils/gzlog"
+	"github.com/gorilla/websocket"
 )
 
 func WsRun(wsPort int) error {
+
 	http.HandleFunc("/", wsHandler)
 	return http.ListenAndServe(
 		":"+basic_convert.NewBasicTypeConversion.Itoa(wsPort), nil,
@@ -40,6 +42,7 @@ func wsHandler(w http.ResponseWriter, r *http.Request) {
 			return conn.SetReadDeadline(time.Now().Add(time.Second * 30))
 		},
 	)
+	UserClientMap.Set(r.URL.Query().Get("userID"), conn)
 	for {
 		messageType, message, returnErr := conn.ReadMessage()
 		if returnErr != nil {

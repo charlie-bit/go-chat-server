@@ -2,14 +2,15 @@ package main
 
 import (
 	"chat_socket/server/config"
-	"chat_socket/server/internal/rpc_msg"
+	"chat_socket/server/internal/rpc_transfer"
 	"chat_socket/server/pkg/start_rpc"
 	"flag"
 	"fmt"
-	"github.com/charlie-bit/utils/gzlog"
 	"os"
 	"os/signal"
 	"syscall"
+
+	"github.com/charlie-bit/utils/gzlog"
 )
 
 func main() {
@@ -55,5 +56,5 @@ func run(port int) error {
 	if port == 0 {
 		port = config.Cfg.TransferServerGrpcPort
 	}
-	return start_rpc.StartRPC(port, rpc_msg.StartMsgServer)
+	return start_rpc.StartRPC(port, rpc_transfer.StartTransferServer)
 }
