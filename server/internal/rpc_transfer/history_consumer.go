@@ -2,22 +2,27 @@ package rpc_transfer
 
 import (
 	"chat_socket/server/internal/rpc_transfer/cache"
+	unrelation "chat_socket/server/model/mongo_table"
 	relation "chat_socket/server/model/table"
 	"chat_socket/server/pkg/constant"
 	"chat_socket/server/pkg/kafka"
 	"chat_socket/server/pkg/proto/msg"
 	"context"
-	"github.com/IBM/sarama"
-	"github.com/charlie-bit/utils/third_party/go-redis"
-	"google.golang.org/protobuf/proto"
 	"sort"
 	"strings"
+
+	"github.com/IBM/sarama"
+	"github.com/charlie-bit/utils/third_party/go-redis"
+	"go.mongodb.org/mongo-driver/mongo"
+	"google.golang.org/protobuf/proto"
 )
 
 type historyConsumer struct {
 	historyConsumerGroup *kafka.MConsumerGroup
 	rdb                  redis.UniversalClient
 	convMInter           relation.ConversationModelInter
+	msgMongoInter        unrelation.MsgDocModelInter
+	pushProducer         *kafka.Producer
 }
 
 func (h historyConsumer) Setup(session sarama.ConsumerGroupSession) error {
@@ -45,7 +50,7 @@ func (h historyConsumer) handleMsg(message *sarama.ConsumerMessage) {
 	// get conversation id by msg
 	convID := GetConversationIdByMsg(&content)
 	// get cur seq
-	_, err := cache.GetConvIDSeq(h.rdb, convID)
+	curSeq, err := cache.GetConvIDSeq(h.rdb, convID)
 	if err != nil {
 		return
 	}
@@ -71,34 +76,53 @@ func (h historyConsumer) handleMsg(message *sarama.ConsumerMessage) {
 		}
 	}
 	// storage message in mongo
-	// mongoMsg := mongo_table.MsgDataModel{
-	// 	SendID:      content.SendID,
-	// 	RecvID:      content.RecvID,
-	// 	GroupID:     content.RecvID,
-	// 	ClientMsgID: content.RecvID,
-	// 	ServerMsgID: content.SendID,
-	// 	SessionType: content.SessionType,
-	// 	Content:     content.Content,
-	// 	Seq:         curSeq,
-	// }
+	mongoMsg := unrelation.MsgDataModel{
+		SendID:      content.SendID,
+		RecvID:      content.RecvID,
+		GroupID:     content.RecvID,
+		ClientMsgID: content.RecvID,
+		ServerMsgID: content.SendID,
+		SessionType: content.SessionType,
+		Content:     content.Content,
+		Seq:         curSeq,
+	}
 	// 返回值为true表示数据库存在该文档，false表示数据库不存在该文档
-	// updateMsgModel := func(seq int64, i int) (bool, error) {
-	// 	var (
-	// 		res *mongo.UpdateResult
-	// 		err error
-	// 	)
-	// 	docID := db.msg.GetDocID(conversationID, seq)
-	// 	index := db.msg.GetMsgIndex(seq)
-	// 	field := fields[i]
-	// 	res, err = db.msgDocDatabase.UpdateMsg(ctx, docID, index, "msg", field)
-	// 	if err != nil {
-	// 		return false, err
-	// 	}
-	// 	return res.MatchedCount > 0, nil
-	// }
-
+	updateMsgModel := func(seq int64, i int) (bool, error) {
+		var (
+			res *mongo.UpdateResult
+			err error
+		)
+		docID := unrelation.GetDocID(convID, mongoMsg.Seq)
+		index := unrelation.GetMsgIndex(seq)
+		field := mongoMsg
+		res, err = h.msgMongoInter.UpdateMsg(docID, index, "msg", field)
+		if err != nil {
+			return false, err
+		}
+		return res.MatchedCount > 0, nil
+	}
+	// 先查询mongo中是否存在该doc，如果有，优先更新
+	// 如果没有，插入
+	doc := unrelation.MsgDocModel{
+		DocID: unrelation.GetDocID(convID, mongoMsg.Seq),
+		Msg:   []*unrelation.MsgInfoModel{{Msg: &mongoMsg}},
+	}
+	var tryUpdate bool
+	if err := h.msgMongoInter.Create(&doc); err != nil {
+		if mongo.IsDuplicateKeyError(err) {
+			tryUpdate = true // 以修改模式
+		} else {
+			return
+		}
+	}
+	if tryUpdate {
+		_, err = updateMsgModel(mongoMsg.Seq, int(unrelation.GetMsgIndex(mongoMsg.Seq)))
+		if err != nil {
+			return
+		}
+	}
 	// transfer message to push server
-
+	_, _, _ = h.pushProducer.SendMsg(context.Background(), content.RecvID, string(message.Value))
 }
 
 func GetConversationIdByMsg(req *msg.SendMsgReq) string {

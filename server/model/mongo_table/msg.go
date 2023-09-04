@@ -1,4 +1,6 @@
-package mongo_table
+package unrelation
+
+import "strconv"
 
 type MsgDataModel struct {
 	SendID           string          `bson:"send_id"`
@@ -22,4 +24,28 @@ type MsgDataModel struct {
 	AtUserIDList     []string        `bson:"at_user_id_list"`
 	AttachedInfo     string          `bson:"attached_info"`
 	Ex               string          `bson:"ex"`
+}
+
+type MsgDocModel struct {
+	DocID string          `bson:"doc_id"`
+	Msg   []*MsgInfoModel `bson:"msgs"`
+}
+
+type MsgInfoModel struct {
+	Msg     *MsgDataModel `bson:"msg"`
+	DelList []string      `bson:"del_list"`
+	IsRead  bool          `bson:"is_read"`
+}
+
+func (MsgDocModel) TableName() string {
+	return "msg"
+}
+
+func GetDocID(conversationID string, seq int64) string {
+	seqSuffix := (seq - 1) / 100
+	return conversationID + ":" + strconv.FormatInt(seqSuffix, 10)
+}
+
+func GetMsgIndex(seq int64) int64 {
+	return (seq - 1) % 100
 }
