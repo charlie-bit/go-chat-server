@@ -1,0 +1,23 @@
+syntax = "proto3";
+package gateway;
+option go_package = "chat_socket/pkg/proto/gateway";
+import "msg/msg.proto";
+
+service gateway {
+  rpc SuperGroupOnlineBatchPushOneMsg(OnlineBatchPushOneMsgReq) returns (OnlineBatchPushOneMsgResp);
+}
+
+message OnlineBatchPushOneMsgReq{
+  msg.SendMsgReq msgData = 1;
+  repeated string pushToUserIDs = 2;
+}
+
+message OnlineBatchPushOneMsgResp{
+  repeated SingleMsgToUserPlatform resp = 1;
+}
+
+message SingleMsgToUserPlatform{
+  int64   ResultCode = 1;
+  string  RecvID = 2;
+  int32   RecvPlatFormID = 3;
+}
