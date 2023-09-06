@@ -21,7 +21,7 @@ func main() {
 		grpcPort    int
 	)
 
-	flag.StringVar(&configFile, "f", "server/config/setting.yaml", "config file")
+	flag.StringVar(&configFile, "f", "config/setting.yaml", "config file")
 	flag.BoolVar(&ping, "ping", false, "Ping server.")
 	flag.BoolVar(&showVersion, "version", false, "Print version information.")
 	flag.BoolVar(&showVersion, "v", false, "Print version information.")

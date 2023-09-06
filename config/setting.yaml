@@ -18,7 +18,7 @@ zookeeper:
 # Maximum number of open connections
 # Maximum number of idle connections
 # Maximum lifetime in seconds a connection can be reused
-# Log level: 1=slient, 2=error, 3=warn, 4=info
+# Log level: 1=silent, 2=error, 3=warn, 4=info
 # Slow query threshold in milliseconds
 mysql:
   address: [ 127.0.0.1:13306 ]
@@ -67,16 +67,12 @@ kafka:
   password:
   addr: [ 127.0.0.1:9092 ]
   latestMsgToRedis:
-    topic: "latestMsgToRedis"
-  offlineMsgToMongo:
-    topic: "offlineMsgToMongoMysql"
+    topic: "transferMsg"
   msgToPush:
-    topic: "msgToPush"
+    topic: "PushMsgToClient"
   consumerGroupID:
-    msgToRedis: redis
-    msgToMongo: mongo
-    msgToMySql: mysql
-    msgToPush: push
+    msgToRedis: transfer_redis
+    msgToPush: push_client
 
 # API Server Port
 APIServerGrpcPort: 10001

@@ -23,7 +23,7 @@ func main() {
 		wsPort      int
 	)
 
-	flag.StringVar(&configFile, "f", "server/config/setting.yaml", "config file")
+	flag.StringVar(&configFile, "f", "config/setting.yaml", "config file")
 	flag.BoolVar(&ping, "ping", false, "Ping server.")
 	flag.BoolVar(&showVersion, "version", false, "Print version information.")
 	flag.BoolVar(&showVersion, "v", false, "Print version information.")
@@ -62,8 +62,10 @@ func run(port int) error {
 	gateway2.NewUserMap()
 	safe_goroutine.SafeGo(
 		func() {
+			gzlog.Infof("gateway server ws listen: %d", config.Cfg.GatewayWsPort)
 			_ = gateway2.WsRun(config.Cfg.GatewayWsPort)
 		},
 	)
+	gzlog.Infof("gateway server grpc listen: %d", config.Cfg.GatewayGrpcPort)
 	return start_rpc.StartRPC(port, gateway2.StartGatewayRPCServer)
 }

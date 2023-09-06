@@ -1,10 +1,10 @@
 package start_rpc
 
 import (
-	"github.com/charlie-bit/utils/basic_convert"
-	"github.com/charlie-bit/utils/gzlog"
-	"google.golang.org/grpc"
 	"net"
+
+	"github.com/charlie-bit/utils/basic_convert"
+	"google.golang.org/grpc"
 )
 
 func StartRPC(rpcPort int, rpcFn func(server *grpc.Server)) error {
@@ -22,6 +22,5 @@ func StartRPC(rpcPort int, rpcFn func(server *grpc.Server)) error {
 	if err = server.Serve(listener); err != nil {
 		return err
 	}
-	gzlog.Infof("start server failed, port : %d", rpcPort)
 	return nil
 }
