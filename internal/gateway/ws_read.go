@@ -42,8 +42,10 @@ func wsHandler(w http.ResponseWriter, r *http.Request) {
 	}()
 	conn.SetReadLimit(51200)
 	_ = conn.SetReadDeadline(time.Now().Add(time.Second * 30))
-	conn.SetPongHandler(
-		func(_ string) error {
+	conn.SetPingHandler(
+		func(appData string) error {
+			gzlog.Debugf("ping data %s", appData)
+			conn.WriteMessage(websocket.PongMessage, nil)
 			return conn.SetReadDeadline(time.Now().Add(time.Second * 30))
 		},
 	)
@@ -57,8 +59,6 @@ func wsHandler(w http.ResponseWriter, r *http.Request) {
 		switch messageType {
 		case websocket.BinaryMessage:
 			_ = handleMsg(conn, message)
-		case websocket.PingMessage:
-			_ = conn.WriteMessage(websocket.PingMessage, nil)
 		case websocket.CloseMessage:
 			return
 		}
