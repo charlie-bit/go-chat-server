@@ -80,5 +80,6 @@ APIServerWsPort: 10010
 MsgServerGrpcPort: 10020
 GatewayGrpcPort: 10030
 GatewayWsPort: 10040
+TransferServerGrpcPort: 10050
 
 

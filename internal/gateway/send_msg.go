@@ -5,7 +5,6 @@ import (
 	"chat_socket/model/gateway"
 	"chat_socket/pkg/proto/msg"
 	"context"
-
 	"github.com/charlie-bit/utils/basic_convert"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -22,12 +21,15 @@ func sendMsg(req gateway.Req) ([]byte, error) {
 		return nil, err
 	}
 	client := msg.NewMsgClient(msgClient)
-	var msgReq = msg.SendMsgReq{
-		SendID:  req.SendID,
-		RecvID:  "charlie",
-		Content: string(req.Data),
+	msgReq := &msg.SendMsgReq{
+		Msg: &msg.MsgData{},
 	}
-	resp, err := client.SendMsg(context.Background(), &msgReq)
+	if err = proto.Unmarshal(req.Data, msgReq.Msg); err != nil {
+		return nil, err
+	}
+	resp, err := client.SendMsg(
+		context.Background(), msgReq,
+	)
 	if err != nil {
 		return nil, err
 	}

@@ -17,16 +17,9 @@ func NewUserMap() {
 }
 
 func (u *UserMap) Set(key string, v *websocket.Conn) {
-	allClients, existed := u.m.Load(key)
-	if existed {
-		oldClients := allClients.([]*websocket.Conn)
-		oldClients = append(oldClients, v)
-		u.m.Store(key, oldClients)
-	} else {
-		var clients []*websocket.Conn
-		clients = append(clients, v)
-		u.m.Store(key, clients)
-	}
+	var clients []*websocket.Conn
+	clients = append(clients, v)
+	u.m.Store(key, clients)
 }
 
 func (u *UserMap) Get(key string) ([]*websocket.Conn, bool, bool) {

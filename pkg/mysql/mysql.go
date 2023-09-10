@@ -13,7 +13,7 @@ import (
 func NewMysqlGormDB() (*gorm.DB, error) {
 	dsn := fmt.Sprintf(
 		"%s:%s@tcp(%s)/%s?charset=utf8mb4&parseTime=true&loc=Local",
-		config.Cfg.Mysql.Username, config.Cfg.Mysql.Password, config.Cfg.Mysql.Address[0], "mysql",
+		config.Cfg.Mysql.Username, config.Cfg.Mysql.Password, config.Cfg.Mysql.Address[0], config.Cfg.Mysql.Database,
 	)
 	client, err := gmysql.NewMysqlClient(
 		&common.Config{

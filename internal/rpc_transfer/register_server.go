@@ -35,7 +35,10 @@ func StartTransferServer(s *grpc.Server) {
 	if err != nil {
 		return
 	}
-	_ = mdb.AutoMigrate(&relation2.ConversationModel{})
+	err = mdb.AutoMigrate(&relation2.ConversationModel{})
+	if err != nil {
+		return
+	}
 	mongodb, err := mongo.NewMongo()
 	if err != nil {
 		return

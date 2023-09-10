@@ -35,7 +35,7 @@ func (h historyConsumer) ConsumeClaim(session sarama.ConsumerGroupSession, claim
 }
 
 func (h historyConsumer) handleMsg(message []byte) {
-	var content msg.SendMsgReq
+	var content msg.MsgData
 	if err := proto.Unmarshal(message, &content); err != nil {
 		return
 	}
@@ -48,12 +48,16 @@ func (h historyConsumer) handleMsg(message []byte) {
 	)
 	if err != nil {
 		log.Fatalf("grpc.Dial err: %v", err)
+		return
 	}
 	defer conn.Close()
 
-	msgClient := gateway.NewGatewayClient(conn)
-	_, _ = msgClient.SuperGroupOnlineBatchPushOneMsg(
+	gatewayClient := gateway.NewGatewayClient(conn)
+	_, err = gatewayClient.SuperGroupOnlineBatchPushOneMsg(
 		context.Background(),
-		&gateway.OnlineBatchPushOneMsgReq{MsgData: &content, PushToUserIDs: []string{content.RecvID}},
+		&gateway.OnlineBatchPushOneMsgReq{MsgData: &content, PushToUserIDs: []string{content.SendID}},
 	)
+	if err != nil {
+		return
+	}
 }

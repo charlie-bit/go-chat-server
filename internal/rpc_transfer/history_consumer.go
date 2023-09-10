@@ -8,6 +8,7 @@ import (
 	kafka2 "chat_socket/pkg/kafka"
 	"chat_socket/pkg/proto/msg"
 	"context"
+	"github.com/charlie-bit/utils/gzlog"
 	"sort"
 	"strings"
 
@@ -43,7 +44,7 @@ func (h historyConsumer) ConsumeClaim(session sarama.ConsumerGroupSession, claim
 
 func (h historyConsumer) handleMsg(message *sarama.ConsumerMessage) {
 	// unmarshal msg
-	var content msg.SendMsgReq
+	var content msg.MsgData
 	if err := proto.Unmarshal(message.Value, &content); err != nil {
 		return
 	}
@@ -65,7 +66,7 @@ func (h historyConsumer) handleMsg(message *sarama.ConsumerMessage) {
 			context.Background(), []*relation2.ConversationModel{
 				{
 					ConversationType: constant.SuperGroupChatType,
-					GroupID:          content.RecvID,
+					GroupID:          content.GroupID,
 					OwnerUserID:      content.SendID,
 					ConversationID:   convID,
 				},
@@ -79,11 +80,11 @@ func (h historyConsumer) handleMsg(message *sarama.ConsumerMessage) {
 	mongoMsg := unrelation2.MsgDataModel{
 		SendID:      content.SendID,
 		RecvID:      content.RecvID,
-		GroupID:     content.RecvID,
-		ClientMsgID: content.RecvID,
-		ServerMsgID: content.SendID,
+		GroupID:     content.GroupID,
+		ClientMsgID: content.ClientMsgID,
+		ServerMsgID: content.ServerMsgID,
 		SessionType: content.SessionType,
-		Content:     content.Content,
+		Content:     string(content.Content),
 		Seq:         curSeq,
 	}
 	// 返回值为true表示数据库存在该文档，false表示数据库不存在该文档
@@ -93,9 +94,9 @@ func (h historyConsumer) handleMsg(message *sarama.ConsumerMessage) {
 			err error
 		)
 		docID := unrelation2.GetDocID(convID, mongoMsg.Seq)
-		index := unrelation2.GetMsgIndex(seq)
-		field := mongoMsg
-		res, err = h.msgMongoInter.UpdateMsg(docID, index, "msg", field)
+		index := unrelation2.GetMsgIndex(convSeq)
+		field := &unrelation2.MsgInfoModel{Msg: &mongoMsg}
+		res, err = h.msgMongoInter.UpdateMsg(docID, index, "", field)
 		if err != nil {
 			return false, err
 		}
@@ -105,32 +106,38 @@ func (h historyConsumer) handleMsg(message *sarama.ConsumerMessage) {
 	// 如果没有，插入
 	doc := unrelation2.MsgDocModel{
 		DocID: unrelation2.GetDocID(convID, mongoMsg.Seq),
-		Msg:   []*unrelation2.MsgInfoModel{{Msg: &mongoMsg}},
+		Msg:   make([]*unrelation2.MsgInfoModel, 100),
 	}
-	var tryUpdate bool
-	if err := h.msgMongoInter.Create(&doc); err != nil {
-		if mongo.IsDuplicateKeyError(err) {
-			tryUpdate = true // 以修改模式
-		} else {
+	index := unrelation2.GetMsgIndex(convSeq)
+	doc.Msg[index] = &unrelation2.MsgInfoModel{Msg: &mongoMsg}
+	var tryUpdate = true
+	if tryUpdate {
+		// 更新消息高于增加消息，调整优先级
+		ok, err := updateMsgModel(mongoMsg.Seq, int(index))
+		if err != nil {
+			gzlog.Errorf("update message mongo data failed,err : %s",
+				err.Error())
 			return
 		}
-	}
-	if tryUpdate {
-		_, err = updateMsgModel(mongoMsg.Seq, int(unrelation2.GetMsgIndex(mongoMsg.Seq)))
-		if err != nil {
-			return
+		if !ok {
+			if err := h.msgMongoInter.Create(&doc); err != nil {
+				return
+			}
 		}
 	}
 	// transfer message to push server
-	_, _, _ = h.pushProducer.SendMsg(context.Background(), content.RecvID, string(message.Value))
+	_, _, err = h.pushProducer.SendMsg(context.Background(), content.GroupID, string(message.Value))
+	if err != nil {
+		return
+	}
 }
 
-func GetConversationIdByMsg(req *msg.SendMsgReq) string {
-	l := []string{req.RecvID}
+func GetConversationIdByMsg(req *msg.MsgData) string {
+	l := []string{req.GroupID}
 	sort.Strings(l)
 	switch req.SessionType {
 	case constant.SuperGroupChatType:
-		return "sg" + strings.Join(l, "_")
+		return "sg_" + strings.Join(l, "_")
 	}
 	return ""
 }

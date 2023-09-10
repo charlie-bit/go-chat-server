@@ -62,7 +62,9 @@ func run(port int) error {
 	gateway2.NewUserMap()
 	safe_goroutine.SafeGo(
 		func() {
-			gzlog.Infof("gateway server ws listen: %d", config.Cfg.GatewayWsPort)
+			gzlog.Infof(
+				"gateway server ws listen: %d", config.Cfg.GatewayWsPort,
+			)
 			_ = gateway2.WsRun(config.Cfg.GatewayWsPort)
 		},
 	)

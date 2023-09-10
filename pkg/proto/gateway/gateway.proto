@@ -8,7 +8,7 @@ service gateway {
 }
 
 message OnlineBatchPushOneMsgReq{
-  msg.SendMsgReq msgData = 1;
+  msg.MsgData msgData = 1;
   repeated string pushToUserIDs = 2;
 }
 

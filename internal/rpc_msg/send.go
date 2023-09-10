@@ -3,7 +3,7 @@ package rpc_msg
 import (
 	"chat_socket/pkg/proto/msg"
 	"context"
-	"fmt"
+	"google.golang.org/protobuf/proto"
 	"math/rand"
 	"strconv"
 	"time"
@@ -13,16 +13,13 @@ import (
 
 func (m MsgRPCServer) SendMsg(ctx context.Context, req *msg.SendMsgReq) (*msg.SendMsgResp, error) {
 	var resp = &msg.SendMsgResp{}
-	// validate message struct
-	if req.Content == "" {
-		return nil, fmt.Errorf("req message is nil")
-	}
 	// integrate rpc_msg basic info
-	resp.ClientMsgID = getMsgID(req.RecvID)
-	resp.ServerMsgID = getMsgID(req.SendID)
+	resp.ClientMsgID = getMsgID(req.Msg.RecvID)
+	resp.ServerMsgID = getMsgID(req.Msg.SendID)
 	resp.SendTime = time.Now().UnixNano() / 1e6
 	// push rpc_msg to mq
-	if _, _, err := m.producer.SendMsg(ctx, req.RecvID, req.Content); err != nil {
+	data, _ := proto.Marshal(req.Msg)
+	if _, _, err := m.producer.SendMsg(ctx, req.Msg.GroupID, string(data)); err != nil {
 		return nil, err
 	}
 	return resp, nil

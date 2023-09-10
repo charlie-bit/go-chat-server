@@ -15,7 +15,11 @@ func SetConvIDSeq(
 }
 
 func GetConvIDSeq(rdb redis.UniversalClient, conversationID string) (int64, error) {
-	return rdb.Get(getMaxSeqKey(conversationID)).Int64()
+	v, err := rdb.Get(getMaxSeqKey(conversationID)).Int64()
+	if err == redis.Nil {
+		return 0, nil
+	}
+	return v, err
 }
 
 func getMaxSeqKey(conversationID string) string {
