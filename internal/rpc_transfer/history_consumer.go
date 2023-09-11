@@ -8,9 +8,10 @@ import (
 	kafka2 "chat_socket/pkg/kafka"
 	"chat_socket/pkg/proto/msg"
 	"context"
-	"github.com/charlie-bit/utils/gzlog"
 	"sort"
 	"strings"
+
+	"github.com/charlie-bit/utils/gzlog"
 
 	"github.com/IBM/sarama"
 	"github.com/charlie-bit/utils/third_party/go-redis"
@@ -95,8 +96,7 @@ func (h historyConsumer) handleMsg(message *sarama.ConsumerMessage) {
 		)
 		docID := unrelation2.GetDocID(convID, mongoMsg.Seq)
 		index := unrelation2.GetMsgIndex(convSeq)
-		field := &unrelation2.MsgInfoModel{Msg: &mongoMsg}
-		res, err = h.msgMongoInter.UpdateMsg(docID, index, "", field)
+		res, err = h.msgMongoInter.UpdateMsg(docID, index, "msg", mongoMsg)
 		if err != nil {
 			return false, err
 		}
@@ -120,6 +120,14 @@ func (h historyConsumer) handleMsg(message *sarama.ConsumerMessage) {
 			return
 		}
 		if !ok {
+			for i := 0; i < len(doc.Msg); i++ {
+				if doc.Msg[i].Msg == nil {
+					doc.Msg[i].Msg = &unrelation2.MsgDataModel{}
+				}
+				if len(doc.Msg[i].DelList) == 0 {
+					doc.Msg[i].DelList = []string{}
+				}
+			}
 			if err := h.msgMongoInter.Create(&doc); err != nil {
 				return
 			}
