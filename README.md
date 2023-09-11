@@ -41,12 +41,16 @@ Minimized chat demo to ensure the reliability and security of message.
 
 ### How to set logic message size for gateway ws connection？
 
-    > decied on incoing webscoket message size
+    > decied on incoing webscoket message sizeåå
 
 ### How to avoid gateway connection resource waste？
 
     >   websocket connection pool
     >   set idle deadline for conn 
+
+### How to implement kick off user?
+
+### How to implement user login in several platforms?
 
 ## Message
 
