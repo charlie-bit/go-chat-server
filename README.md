@@ -61,7 +61,7 @@ Minimized chat demo to ensure the reliability and security of message.
 
 ### How to ensure message timely transfer?
 
-    >   keey-alive for ws connection
+    >   keep-alive for ws connection
     >   heart beat for ws connection
     >   healthy network infrastructure
 
